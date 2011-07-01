@@ -1,0 +1,232 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Rhoxor @ DemoJS</title>
+
+<script src="paper.js/dist/paper.js"></script>
+
+<script type="text/paperscript" canvas="canvas-1">
+
+
+var o = new Path();
+o.strokeColor = 'white';
+o.add(new Point(35, 75)); 
+o.add(new Point(35, 25)); 
+o.add(new Point(75, 25));
+o.add(new Point(75, 75));
+o.closed = true;
+o.smooth();
+
+var n = new Path();
+n.strokeColor = 'white';
+n.add(new Point(95, 85));
+n.add(new Point(95, 25));
+n.add(new Point(125, 20));
+n.add(new Point(135, 85));
+n.closed = false;
+n.smooth();
+
+var u = new Path();
+u.strokeColor = 'white';
+u.add(new Point(155, 20));
+u.add(new Point(155, 80));
+u.add(new Point(195, 80)); 
+u.add(new Point(195, 20));
+u.closed = false;
+u.smooth();
+
+var r = new Path();
+r.strokeColor = 'white';
+r.add(new Point(215, 80));
+r.add(new Point(215, 30));
+r.add(new Point(255, 20));
+r.closed = false;
+r.smooth();
+
+onur = [o, n, u, r];
+
+var f = new Path();
+f.strokeColor = 'white';
+f.add(new Point(35, 160));
+f.add(new Point(75, 120));
+f.add(new Point(40, 100));
+f.add(new Point(50, 140));
+f.add(new Point(75, 200));
+f.add(new Point(45, 190));
+f.add(new Point(65, 150));
+f.closed = false;
+f.smooth();
+
+var a = new Path();
+a.strokeColor = 'white';
+a.add(new Point(115, 125));
+a.add(new Point(75, 145));
+a.add(new Point(105, 165));
+a.add(new Point(120, 130));
+a.add(new Point(120, 165));
+a.closed = false;
+a.smooth();
+
+var b = new Path();
+b.strokeColor = 'white';
+b.add(new Point(135, 95));
+b.add(new Point(140, 165));
+b.add(new Point(150, 130));
+b.add(new Point(175, 140));
+b.add(new Point(170, 160));
+b.add(new Point(145, 165));
+b.closed = false;
+b.smooth();
+
+var r = new Path();
+r.strokeColor = 'white';
+r.add(new Point(185, 135));
+r.add(new Point(190, 165));
+r.add(new Point(195, 135));
+r.add(new Point(225, 130));
+r.closed = false;
+r.smooth();
+
+var i = new Path();
+i.strokeColor = 'white';
+i.add(new Point(240, 125));
+i.add(new Point(240, 165));
+i.closed = false;
+i.smooth();
+
+var c = new Path();
+c.strokeColor = 'white';
+c.add(new Point(285, 125));
+c.add(new Point(260, 130));
+c.add(new Point(250, 145));
+c.add(new Point(260, 160));
+c.add(new Point(290, 160));
+c.closed = false;
+c.smooth();
+
+var e = new Path();
+e.strokeColor = 'white';
+e.add(new Point(305, 145));
+e.add(new Point(335, 145));
+e.add(new Point(335, 125));
+e.add(new Point(305, 135));
+e.add(new Point(300, 155));
+e.add(new Point(335, 165));
+e.closed = false;
+e.smooth();
+
+fabrice = [f, a, b, r, i, c, e];
+
+var c = new Path();
+c.strokeColor = 'white';
+c.add(new Point(65, 230));
+c.add(new Point(40, 235));
+c.add(new Point(30, 250));
+c.add(new Point(40, 265));
+c.add(new Point(70, 265));
+c.closed = false;
+c.smooth();
+
+
+var h = new Path();
+h.strokeColor = 'white';
+h.add(new Point(80, 200));
+h.add(new Point(85, 270));
+h.add(new Point(90, 240));
+h.add(new Point(115, 230));
+h.add(new Point(125, 270));
+h.closed = false;
+h.smooth();
+
+var r = new Path();
+r.strokeColor = 'white';
+r.add(new Point(140, 240));
+r.add(new Point(145, 270));
+r.add(new Point(150, 240));
+r.add(new Point(180, 235));
+r.closed = false;
+r.smooth();
+
+var i = new Path();
+i.strokeColor = 'white';
+i.add(new Point(195, 230));
+i.add(new Point(195, 270));
+i.closed = false;
+i.smooth();
+
+var s = new Path();
+s.strokeColor = 'white';
+s.add(new Point(245, 230));
+s.add(new Point(220, 240));
+s.add(new Point(220, 250));
+s.add(new Point(240, 255));
+s.add(new Point(240, 265));
+s.add(new Point(215, 270));
+s.closed = false;
+s.smooth();
+
+chris = [c, h, r, i, s];
+
+people = [onur, fabrice, chris];
+/*
+var N = new Path();
+N.strokeColor = 'white';
+N.add(new Point(215, 80));
+N.add(new Point(215, 20));
+N.add(new Point(255, 80)); 
+N.add(new Point(255, 20));
+N.closed = false;
+N.smooth();
+*/
+
+max_scale = 1.2;
+beat = 145;
+
+factor = 1 + (max_scale-1)*(beat/3600);
+scale = 1;
+last_event = 0;
+function scaleWord(word, factor)
+{
+  for (var i=0; i<word.length; i++)
+  {
+  	word[i].scale(factor);
+  }
+}
+function scaleWords(words, factor)
+{
+  for (var i=0; i<words.length; i++)
+  {
+  	scaleWord(words[i], factor);
+  }
+}
+function scalePeople(event)
+{
+  scaleWords(people, factor);
+  scale = scale * factor;
+  if (event.time - last_event > 60/beat)
+  {
+  	last_event = event.time;
+  	scaleWords(people, 1/scale);
+  	scale = 1;
+  }	
+}
+
+// FPS 60
+function onFrame(event)
+{
+  scalePeople(event);
+}
+
+</script>
+
+</head>
+
+<body>
+<div id="content">
+<canvas id="canvas-1" width="640" height="480" resize="true" style="background:black"></canvas>
+
+</div>
+
+</body>
+
+</html>
