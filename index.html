@@ -199,6 +199,7 @@ function scaleWords(words, factor)
   	scaleWord(words[i], factor);
   }
 }
+
 function scalePeople(event)
 {
   scaleWords(people, factor);
@@ -211,10 +212,35 @@ function scalePeople(event)
   }	
 }
 
+initial_y = [];
+for (var w=0; w<people.length; w++)
+{
+  initial_y[w] = [];
+  word = people[w];
+  for (var c=0; c<word.length; c++)
+  {
+    initial_y[w][c] = word[c].position.y;
+  }
+}
+function wavePeople(event)
+{
+  time = event.time;
+  for (var w=0; w<people.length; w++)
+  {
+    word = people[w];
+  	for (var c=0; c<word.length; c++)
+  	{
+  	  word[c].position.y = initial_y[w][c] + 10*Math.sin(word[c].position.x + time*2);
+
+  	}
+  }
+}
+
 // FPS 60
 function onFrame(event)
 {
-  scalePeople(event);
+  //scalePeople(event);
+  wavePeople(event);
 }
 
 </script>
