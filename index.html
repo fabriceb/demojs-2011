@@ -251,27 +251,28 @@ function wavePeople(event)
 // FPS 60
 function onFrame(event)
 {
-  if (event.time < 22)
+  audio_time = document.getElementById('player').currentTime;
+  if (audio_time < 22)
   {
     wavePeople(event);
   }
-  else if (event.time < 44)
+  else if (audio_time < 44)
   {
   	scalePeople(event);
   }
-  else if (event.time < 62)
+  else if (audio_time < 62)
   {
   	wavePeople(event);
   }
-  else if (event.time < 90)
+  else if (audio_time < 90)
   {
   	scalePeople(event);
   }
-  else if (event.time < 98)
+  else if (audio_time < 98)
   {
   	wavePeople(event);
   }
-  else if (event.time < 134)
+  else if (audio_time < 134)
   {
   	scalePeople(event);
   }
@@ -286,7 +287,7 @@ function onFrame(event)
 <canvas id="canvas-1" width="500" height="350" style="background:black"></canvas>
 
 </div>
-<audio controls="controls" autoplay/>
+<audio controls="controls" autoplay id="player" />
   <source src="01 Space War.ogg" type="audio/ogg">
   <source src="01 Space War.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
