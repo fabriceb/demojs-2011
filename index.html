@@ -3,7 +3,9 @@
 <head>
 <title>Rhoxor @ DemoJS</title>
 
-<script src="paper.js/dist/paper.js"></script>
+
+
+<script src="paper.js"></script>
 
 <script type="text/paperscript" canvas="canvas-1">
 
@@ -44,6 +46,7 @@ r.closed = false;
 r.smooth();
 
 onur = [o, n, u, r];
+
 
 var f = new Path();
 f.strokeColor = 'white';
@@ -117,6 +120,7 @@ e.smooth();
 
 fabrice = [f, a, b, r, i, c, e];
 
+
 var c = new Path();
 c.strokeColor = 'white';
 c.add(new Point(65, 230));
@@ -126,7 +130,6 @@ c.add(new Point(40, 265));
 c.add(new Point(70, 265));
 c.closed = false;
 c.smooth();
-
 
 var h = new Path();
 h.strokeColor = 'white';
@@ -168,21 +171,12 @@ s.smooth();
 chris = [c, h, r, i, s];
 
 people = [onur, fabrice, chris];
-/*
-var N = new Path();
-N.strokeColor = 'white';
-N.add(new Point(215, 80));
-N.add(new Point(215, 20));
-N.add(new Point(255, 80)); 
-N.add(new Point(255, 20));
-N.closed = false;
-N.smooth();
-*/
+
 
 max_scale = 1.2;
-beat = 145;
+scale_beat = 120;
 
-factor = 1 + (max_scale-1)*(beat/3600);
+factor = 1 + (max_scale-1)*(scale_beat/3600);
 scale = 1;
 last_event = 0;
 function scaleWord(word, factor)
@@ -204,7 +198,7 @@ function scalePeople(event)
 {
   scaleWords(people, factor);
   scale = scale * factor;
-  if (event.time - last_event > 60/beat)
+  if (event.time - last_event > 60/scale_beat)
   {
   	last_event = event.time;
   	scaleWords(people, 1/scale);
@@ -222,37 +216,81 @@ for (var w=0; w<people.length; w++)
     initial_y[w][c] = word[c].position.y;
   }
 }
+w = 0;
+wave_beat = 120/120;
+wave_speed = 10/wave_beat;
 function wavePeople(event)
 {
-  time = event.time;
-  for (var w=0; w<people.length; w++)
-  {
+  time = event.time - last_event;
+
     word = people[w];
   	for (var c=0; c<word.length; c++)
   	{
-  	  word[c].position.y = initial_y[w][c] + 10*Math.sin(word[c].position.x + time*2);
-
+  	  rad = (word[c].position.x - word[0].position.x)/60 - wave_speed * time;
+  	  if (rad < 0 && rad >= -Math.PI)
+  	  {
+  	    word[c].position.y = initial_y[w][c] + 20 * Math.sin(rad);
+  	  }
+  	  else
+  	  {
+  	  	word[c].position.y = initial_y[w][c];
+  	  }
   	}
-  }
+  	if (time > wave_beat)
+  	{
+  	  w++;
+  	  time = 0;
+  	  last_event = event.time;
+  	}
+  	if (w > 2)
+    {
+  	  w = 0;
+    }
 }
 
 // FPS 60
 function onFrame(event)
 {
-  //scalePeople(event);
-  wavePeople(event);
+  if (event.time < 22)
+  {
+    wavePeople(event);
+  }
+  else if (event.time < 44)
+  {
+  	scalePeople(event);
+  }
+  else if (event.time < 62)
+  {
+  	wavePeople(event);
+  }
+  else if (event.time < 90)
+  {
+  	scalePeople(event);
+  }
+  else if (event.time < 98)
+  {
+  	wavePeople(event);
+  }
+  else if (event.time < 134)
+  {
+  	scalePeople(event);
+  }
 }
 
 </script>
 
 </head>
 
-<body>
+<body style="background-color:black">
 <div id="content">
-<canvas id="canvas-1" width="640" height="480" resize="true" style="background:black"></canvas>
+<canvas id="canvas-1" width="500" height="350" style="background:black"></canvas>
 
 </div>
-
+<audio controls="controls" autoplay/>
+  <source src="01 Space War.ogg" type="audio/ogg">
+  <source src="01 Space War.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 </body>
 
 </html>
