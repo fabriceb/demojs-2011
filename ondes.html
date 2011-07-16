@@ -25,6 +25,14 @@ var drop = function (center_x, center_y) {
     return Math.sqrt(Math.pow(x-this.center_x, 2) + Math.pow(y-this.center_y, 2));
   };
 
+  that.get_peak_dist = function (x, y, time)
+  {
+    var center_peak_dist = this.get_center_to_peak_dist(time);
+    var center_dist = this.get_center_dist(x,y);
+
+    return Math.abs(center_dist - center_peak_dist);
+  };
+
   that.get_center_to_peak_dist = function (time) {
     return this.speed * (time - this.birth_time) / 1000;
   };
@@ -47,7 +55,7 @@ var drop = function (center_x, center_y) {
   };
 
   that.is_dead = function (time) {
-    return (time - this.birth_time) > 4000;
+    return (time - this.birth_time) > 2500;
   }
 
 
@@ -62,20 +70,20 @@ var renderDrops = function (imageData, drops) {
   for (x = 0; x < width; x+=4) {
     for (y = 0; y < height; y+=4) {
       h = 0;
-      //min_dist = 1024;
+      min_dist = width + height;
       for (i = 0; i < drops.length; i++) {
         h += drops[i].get_wave_height(x, y, time);
-        //min_dist = Math.min(min_dist, )
+        min_dist = Math.min(min_dist, drops[i].get_peak_dist(x, y, time))
       }
 
-      if (Math.round(50 * h) == 0)
+      if (min_dist > 30)
       {
         color = [255, 255, 255];
       }
       else
       {
-        h = Math.round(h * 128 + 128);
-        color = [h - 64, h - 64, h];
+        h = Math.min(255, Math.round(255 - 32 - h * 64));
+        color = [h, h, h];
       }
 
       for (i=0; i<2; i+=1) {
