@@ -7,8 +7,8 @@
 
   <script type="text/javascript">
 
-var width = 1000;
-var height = 500;
+var width = 640;
+var height = 480;
 
 var drop = function (center_x, center_y) {
   var that = {};
@@ -67,27 +67,28 @@ var renderDrops = function (imageData, drops) {
   var currentTime = new Date()
   var time = currentTime.getTime();
     
-  for (x = 0; x < width; x+=4) {
-    for (y = 0; y < height; y+=4) {
+  for (x = 0; x < width; x+=3) {
+    for (y = 0; y < height; y+=3) {
       h = 0;
       min_dist = width + height;
       for (i = 0; i < drops.length; i++) {
         h += drops[i].get_wave_height(x, y, time);
-        min_dist = Math.min(min_dist, drops[i].get_peak_dist(x, y, time))
+        min_dist = Math.min(min_dist, drops[i].get_peak_dist(x, y));
       }
 
-      if (min_dist > 30)
+      if (min_dist > 64)
       {
-        color = [255, 255, 255];
+        continue;
+        color = [128, 128, 128];
       }
       else
       {
-        h = Math.min(255, Math.round(255 - 32 - h * 64));
+        h = Math.round(h * 128 + 128);
         color = [h, h, h];
       }
 
-      for (i=0; i<2; i+=1) {
-      for (j=0; j<2; j+=1) {
+      for (i=0; i<1; i+=1) {
+      for (j=0; j<1; j+=1) {
         index = (x + i + (y + j) * imageData.width) * 4;
         imageData.data[index+0] = color[0];
         imageData.data[index+1] = color[1];
