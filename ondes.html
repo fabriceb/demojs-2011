@@ -69,17 +69,18 @@ var renderDrops = function (imageData, drops) {
 
   for (d = 0; d < drops.length; d++) {
     drop= drops[d];
-    rmax = drop.get_center_to_peak_dist(time);
+    rmax = Math.round(drop.get_center_to_peak_dist(time));
     for (r = Math.max(0, rmax - 20); r < rmax + 20; r+=1) {
+
       h = drop.get_wave_height(r, time);
       h = Math.round(h * 128 + 128);
       color = [h, h, h];
       for (theta = 0; theta < Math.PI * 2; theta += Math.PI * 2 / (8 * r)) {
-        x = drop.center_x + r * Math.cos(theta);
+        x = drop.center_x + Math.round(r * Math.cos(theta));
         if (x<0 || x>=width) {
           continue;
         }
-        y = drop.center_y + r * Math.sin(theta);
+        y = drop.center_y + Math.round(r * Math.sin(theta));
         if (y<0 || y>=height) {
           continue;
         }
