@@ -49,8 +49,7 @@ var drop = function (center_x, center_y) {
     return Math.sin(dist / this.wave_size - time / 1000 * this.speed);
   };
 
-  that.get_wave_height = function (x, y, time) {
-    var dist = this.get_center_dist(x, y);
+  that.get_wave_height = function (dist, time) {
     return this.get_wave_shape(dist, time) * this.get_travel_attenuation(dist, time) * this.get_friction_attenuation(dist);
   };
 
@@ -63,41 +62,37 @@ var drop = function (center_x, center_y) {
 };
 
 var renderDrops = function (imageData, drops) {
-  var i, j, x, y, h;
+  var d, i, j, x, y, h, drop, r, theta;
   var currentTime = new Date()
   var time = currentTime.getTime();
-    
-  for (x = 0; x < width; x+=3) {
-    for (y = 0; y < height; y+=3) {
-      h = 0;
-      min_dist = width + height;
-      for (i = 0; i < drops.length; i++) {
-        h += drops[i].get_wave_height(x, y, time);
-        min_dist = Math.min(min_dist, drops[i].get_peak_dist(x, y));
-      }
+  var rmax;
 
-      if (min_dist > 64)
-      {
-        continue;
-        color = [128, 128, 128];
-      }
-      else
-      {
-        h = Math.round(h * 128 + 128);
-        color = [h, h, h];
-      }
-
-      for (i=0; i<1; i+=1) {
-      for (j=0; j<1; j+=1) {
-        index = (x + i + (y + j) * imageData.width) * 4;
+  for (d = 0; d < drops.length; d++) {
+    drop= drops[d];
+    rmax = drop.get_center_to_peak_dist(time);
+    for (r = Math.max(0, rmax - 20); r < rmax + 20; r+=1) {
+      h = drop.get_wave_height(r, time);
+      h = Math.round(h * 128 + 128);
+      color = [h, h, h];
+      for (theta = 0; theta < Math.PI * 2; theta += Math.PI * 2 / (8 * r)) {
+        x = drop.center_x + r * Math.cos(theta);
+        if (x<0 || x>=width) {
+          continue;
+        }
+        y = drop.center_y + r * Math.sin(theta);
+        if (y<0 || y>=height) {
+          continue;
+        }
+        index = (x + y * imageData.width) * 4;
         imageData.data[index+0] = color[0];
         imageData.data[index+1] = color[1];
         imageData.data[index+2] = color[2];
         imageData.data[index+3] = 0xff;
       }
-      }
     }
+
   }
+    
   return imageData;
 };
 
