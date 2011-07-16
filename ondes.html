@@ -41,13 +41,9 @@ var drop = function (center_x, center_y) {
     return Math.sin(dist / this.wave_size - time / 1000 * this.speed);
   };
 
-  that.get_wave_height = function (dist, time) {
+  that.get_wave_height = function (x, y, time) {
+    var dist = this.get_center_dist(x, y);
     return this.get_wave_shape(dist, time) * this.get_travel_attenuation(dist, time) * this.get_friction_attenuation(dist);
-  };
-
-  that.get_wave_rgb = function (dist, time) {
-    var h = Math.round(this.get_wave_height(dist, time) * 128 + 128);
-    return 'rgb(' + h + ', ' + h + ',' + h + ')';
   };
 
   that.is_dead = function (time) {
@@ -58,23 +54,42 @@ var drop = function (center_x, center_y) {
   return that;
 };
 
-var renderDrops = function (context, drops) {
-  var i, r, drop;
+var renderDrops = function (imageData, drops) {
+  var i, j, x, y, h;
   var currentTime = new Date()
   var time = currentTime.getTime();
-  var max_radius = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+    
+  for (x = 0; x < width; x+=4) {
+    for (y = 0; y < height; y+=4) {
+      h = 0;
+      //min_dist = 1024;
+      for (i = 0; i < drops.length; i++) {
+        h += drops[i].get_wave_height(x, y, time);
+        //min_dist = Math.min(min_dist, )
+      }
 
-  for (i = 0; i < drops.length; i+=1) {
-    drop = drops[i];
-    for (r = 1; r < max_radius; r+=1) {
-      context.beginPath();
-      context.arc(drop.center_x, drop.center_y, r, 0, Math.PI * 2);
-      context.lineWidth = 1;
-//          console.log(drop.get_wave_rgb(r, time));
-      context.strokeStyle = drop.get_wave_rgb(r, time);
-      context.stroke();
+      if (Math.round(50 * h) == 0)
+      {
+        color = [255, 255, 255];
+      }
+      else
+      {
+        h = Math.round(h * 128 + 128);
+        color = [h - 64, h - 64, h];
+      }
+
+      for (i=0; i<2; i+=1) {
+      for (j=0; j<2; j+=1) {
+        index = (x + i + (y + j) * imageData.width) * 4;
+        imageData.data[index+0] = color[0];
+        imageData.data[index+1] = color[1];
+        imageData.data[index+2] = color[2];
+        imageData.data[index+3] = 0xff;
+      }
+      }
     }
   }
+  return imageData;
 };
 
 var canvas_manager = function (canvas_node)
@@ -82,11 +97,13 @@ var canvas_manager = function (canvas_node)
   var that = {};
 
   that.context = canvas_node.getContext('2d');
+  that.image_data = that.context.createImageData(width, height);
 
   that.drops = [drop(25, 100)];  
 
   that.draw = function() {
-    renderDrops(this.context, this.drops);
+    image_data = renderDrops(this.image_data, this.drops);
+    this.context.putImageData(image_data, 0, 0);
   }
 
   return that;
@@ -99,10 +116,8 @@ var body_onload = function () {
   main_loop();
 };
 var main_loop = function () {
-
   var currentTime = new Date()
   var time = currentTime.getTime();
-
   var new_drops = [];
   for (i = 0; i < cm.drops.length; i++) {
     if (!cm.drops[i].is_dead(time)) {
@@ -110,13 +125,10 @@ var main_loop = function () {
     }
   }
   cm.drops = new_drops;
-  
   cm.draw();
-
   if (Math.random() < 0.05) {
     cm.drops.push(drop(Math.floor(Math.random() * width), Math.floor(Math.random() * height)));
   }
-    
   window.setTimeout(main_loop, 1000/60);
 };
   </script>
