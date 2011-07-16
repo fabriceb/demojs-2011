@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Ondes</title>
+
+  <script type="text/javascript">
+
+var width = 1000;
+var height = 500;
+
+var drop = function (center_x, center_y) {
+  var that = {};
+  var currentTime = new Date();
+
+  that.center_x = center_x;
+  that.center_y = center_y;
+  that.birth_time = currentTime.getTime();
+  that.speed = 100; // pixel per seconds
+  that.wave_size = 3;
+
+  that.get_center_dist = function (x, y)
+  {
+    return Math.sqrt(Math.pow(x-this.center_x, 2) + Math.pow(y-this.center_y, 2));
+  };
+
+  that.get_center_to_peak_dist = function (time) {
+    return this.speed * (time - this.birth_time) / 1000;
+  };
+
+  that.get_travel_attenuation = function (dist, time) {
+    return Math.exp( - Math.pow(dist - this.get_center_to_peak_dist(time), 2) / 1000 );
+  };
+
+  that.get_friction_attenuation = function (dist) {
+    return Math.exp( - dist / 70 );
+  };
+
+  that.get_wave_shape = function (dist, time) {
+    return Math.sin(dist / this.wave_size - time / 1000 * this.speed);
+  };
+
+  that.get_wave_height = function (x, y, time) {
+    var dist = this.get_center_dist(x, y);
+    return this.get_wave_shape(dist, time) * this.get_travel_attenuation(dist, time) * this.get_friction_attenuation(dist);
+  };
+
+  that.is_dead = function (time) {
+    return (time - this.birth_time) > 4000;
+  }
+
+
+  return that;
+};
+
+var renderDrops = function (imageData, drops) {
+  var i, x, y, h;
+  var currentTime = new Date()
+  var time = currentTime.getTime();
+
+  var new_drops = [];
+  for (i = 0; i < drops.length; i++) {
+    if (!drops[i].is_dead(time)) {
+      new_drops.push(drops[i]);
+    }
+  }
+  drops = new_drops;
+    
+  for (x = 0; x < width; x++) {
+    for (y = 0; y < height; y++) {
+      h = 0;
+      for (i = 0; i < drops.length; i++) {
+        h += drops[i].get_wave_height(x, y, time);
+      }
+      h = Math.round(h * 32 + 127 + 64 + 32);
+      // console.log(h);
+      index = (x + y * imageData.width) * 4;
+      imageData.data[index+0] = h - 128;
+      imageData.data[index+1] = h - 64;
+      imageData.data[index+2] = h;
+      imageData.data[index+3] = 0xff;
+    }
+  }
+  return imageData;
+};
+
+var canvas_manager = function (canvas_node)
+{
+  var that = {};
+
+  that.context = canvas_node.getContext('2d');
+  that.image_data = that.context.createImageData(width, height);
+
+  that.drops = [drop(25, 100)];  
+
+  that.draw = function() {
+    image_data = renderDrops(this.image_data, this.drops);
+    this.context.putImageData(image_data, 0, 0);
+  }
+
+  return that;
+};
+
+var cm;
+
+var body_onload = function () {
+  cm = canvas_manager(document.getElementById('canvas-1'));
+  main_loop();
+};
+var main_loop = function () {
+  cm.draw();
+  if (Math.random() < 0.05) {
+    cm.drops.push(drop(Math.floor(Math.random() * width), Math.floor(Math.random() * height)));
+  }
+  window.setTimeout(main_loop, 1000/60);
+};
+  </script>
+
+</head>
+
+<body style="background-color: white;" onload="body_onload();">
+  <div id="content">
+    <canvas id="canvas-1" width="1000" height="500" style="background:white"></canvas>
+  </div>
+</body>
+
+</html>
