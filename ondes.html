@@ -70,7 +70,7 @@ var renderDrops = function (imageData, drops) {
   for (d = 0; d < drops.length; d++) {
     drop= drops[d];
     rmax = Math.round(drop.get_center_to_peak_dist(time));
-    for (r = Math.max(0, rmax - 20); r < rmax + 20; r+=1) {
+    for (r = Math.max(0, rmax - 40); r < rmax + 20; r+=1) {
 
       h = drop.get_wave_height(r, time);
       h = Math.round(h * 128 + 128);
@@ -85,9 +85,18 @@ var renderDrops = function (imageData, drops) {
           continue;
         }
         index = (x + y * imageData.width) * 4;
-        imageData.data[index+0] = color[0];
-        imageData.data[index+1] = color[1];
-        imageData.data[index+2] = color[2];
+        if (d==0)
+        {
+          imageData.data[index+0] = color[0];
+          imageData.data[index+1] = color[1];
+          imageData.data[index+2] = color[2];
+        }
+        else
+        {
+          imageData.data[index+0] += color[0];
+          imageData.data[index+1] += color[1];
+          imageData.data[index+2] += color[2];
+        }
         imageData.data[index+3] = 0xff;
       }
     }
