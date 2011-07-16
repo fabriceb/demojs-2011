@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Ondes</title>
+
+  <script type="text/javascript">
+
+var width = 1000;
+var height = 500;
+
+var drop = function (center_x, center_y) {
+  var that = {};
+  var currentTime = new Date();
+
+  that.center_x = center_x;
+  that.center_y = center_y;
+  that.birth_time = currentTime.getTime();
+  that.speed = 100; // pixel per seconds
+  that.wave_size = 3;
+
+  that.get_center_dist = function (x, y)
+  {
+    return Math.sqrt(Math.pow(x-this.center_x, 2) + Math.pow(y-this.center_y, 2));
+  };
+
+  that.get_center_to_peak_dist = function (time) {
+    return this.speed * (time - this.birth_time) / 1000;
+  };
+
+  that.get_travel_attenuation = function (dist, time) {
+    return Math.exp( - Math.pow(dist - this.get_center_to_peak_dist(time), 2) / 1000 );
+  };
+
+  that.get_friction_attenuation = function (dist) {
+    return Math.exp( - dist / 70 );
+  };
+
+  that.get_wave_shape = function (dist, time) {
+    return Math.sin(dist / this.wave_size - time / 1000 * this.speed);
+  };
+
+  that.get_wave_height = function (dist, time) {
+    return this.get_wave_shape(dist, time) * this.get_travel_attenuation(dist, time) * this.get_friction_attenuation(dist);
+  };
+
+  that.get_wave_rgb = function (dist, time) {
+    var h = Math.round(this.get_wave_height(dist, time) * 128 + 128);
+    return 'rgb(' + h + ', ' + h + ',' + h + ')';
+  };
+
+  that.is_dead = function (time) {
+    return (time - this.birth_time) > 4000;
+  }
+
+
+  return that;
+};
+
+var renderDrops = function (context, drops) {
+  var i, r, drop;
+  var currentTime = new Date()
+  var time = currentTime.getTime();
+  var max_radius = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+
+  for (i = 0; i < drops.length; i+=1) {
+    drop = drops[i];
+    for (r = 1; r < max_radius; r+=1) {
+      context.beginPath();
+      context.arc(drop.center_x, drop.center_y, r, 0, Math.PI * 2);
+      context.lineWidth = 1;
+//          console.log(drop.get_wave_rgb(r, time));
+      context.strokeStyle = drop.get_wave_rgb(r, time);
+      context.stroke();
+    }
+  }
+};
+
+var canvas_manager = function (canvas_node)
+{
+  var that = {};
+
+  that.context = canvas_node.getContext('2d');
+
+  that.drops = [drop(25, 100)];  
+
+  that.draw = function() {
+    renderDrops(this.context, this.drops);
+  }
+
+  return that;
+};
+
+var cm;
+
+var body_onload = function () {
+  cm = canvas_manager(document.getElementById('canvas-1'));
+  main_loop();
+};
+var main_loop = function () {
+
+  var currentTime = new Date()
+  var time = currentTime.getTime();
+
+  var new_drops = [];
+  for (i = 0; i < cm.drops.length; i++) {
+    if (!cm.drops[i].is_dead(time)) {
+      new_drops.push(cm.drops[i]);
+    }
+  }
+  cm.drops = new_drops;
+  
+  cm.draw();
+
+  if (Math.random() < 0.05) {
+    cm.drops.push(drop(Math.floor(Math.random() * width), Math.floor(Math.random() * height)));
+  }
+    
+  window.setTimeout(main_loop, 1000/60);
+};
+  </script>
+
+</head>
+
+<body style="background-color: white;" onload="body_onload();">
+  <div id="content">
+    <canvas id="canvas-1" width="1000" height="500" style="background:white"></canvas>
+  </div>
+</body>
+
+</html>
